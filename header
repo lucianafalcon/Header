@@ -1,0 +1,77 @@
+      ******************************************************************
+      * Author: Luciana Falcon
+      * Date: 21/06/2023
+      * Purpose: Generar un texto sin que se corten las palabras.
+      * Open Cobol
+      ******************************************************************
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. YOUR-PROGRAM-NAME.
+       DATA DIVISION.
+       FILE SECTION.
+       WORKING-STORAGE SECTION.
+
+       01  WS-TIRA-DATOS                PIC X(80) VALUE
+               'TITULO1;TITULO2;TITU3;TITUL4;AAAAA;BB;CCCC;DDD;EEEEEEE'.
+       01  WS-TIRA-DATOS-AUX            PIC X(80) VALUE SPACE.
+       77  WS-MAX-LENGTH-TIRA-AUX       PIC 9(02) VALUE 17.
+
+       01  WS-I                         PIC 9(02).
+       01  WS-J                         PIC 9(02).
+       01  WS-K                         PIC 9(03).
+       01  WS-CONTADOR-PALABRA          PIC 9(03).
+       01  WS-CONTADOR-RENGLON          PIC 9(03).
+       01  WS-PALABRA                   PIC X(50).
+       01  WS-SUMA                      PIC 9(03).
+
+       PROCEDURE DIVISION.
+       MAIN-PROCEDURE.
+
+           MOVE 1 TO WS-I
+           MOVE 1 TO WS-J
+           MOVE 1 TO WS-K
+
+           MOVE 0 TO WS-CONTADOR-PALABRA
+           MOVE 0 TO WS-CONTADOR-RENGLON
+
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I >
+                                          LENGTH OF WS-TIRA-DATOS
+
+             IF WS-TIRA-DATOS(WS-I:1)  NOT EQUAL ';'
+                 MOVE  WS-TIRA-DATOS(WS-I:1) TO WS-PALABRA(WS-J:1)
+                 ADD 1 TO WS-J
+                 ADD 1 TO WS-CONTADOR-PALABRA
+             END-IF
+
+             IF WS-TIRA-DATOS(WS-I:1)  EQUAL ';'
+                 MOVE  WS-TIRA-DATOS(WS-I:1) TO WS-PALABRA(WS-J:1)
+                 ADD 1 TO WS-CONTADOR-PALABRA
+                 ADD WS-CONTADOR-PALABRA TO WS-CONTADOR-RENGLON
+                                                 GIVING WS-SUMA
+
+                IF WS-SUMA < WS-MAX-LENGTH-TIRA-AUX
+                  MOVE  WS-PALABRA(1:WS-CONTADOR-PALABRA) TO
+                            WS-TIRA-DATOS-AUX(WS-K:WS-CONTADOR-PALABRA)
+                  ADD WS-CONTADOR-PALABRA  TO WS-K
+                  ADD WS-CONTADOR-PALABRA  TO WS-CONTADOR-RENGLON
+
+                  ELSE
+                       DISPLAY WS-TIRA-DATOS-AUX
+                       MOVE 0 TO WS-CONTADOR-RENGLON
+                       MOVE SPACES TO WS-TIRA-DATOS-AUX
+                       MOVE 1 TO WS-K
+                       MOVE WS-PALABRA
+                         TO WS-TIRA-DATOS-AUX(WS-K:WS-CONTADOR-PALABRA)
+                       ADD WS-CONTADOR-PALABRA TO WS-K
+                       ADD WS-CONTADOR-PALABRA TO WS-CONTADOR-RENGLON
+                 END-IF
+
+                 MOVE 0 TO WS-CONTADOR-PALABRA
+                 MOVE 1 TO WS-J
+                 MOVE SPACES TO WS-PALABRA
+             END-IF
+
+           END-PERFORM
+           DISPLAY WS-TIRA-DATOS-AUX
+
+            STOP RUN.
+       END PROGRAM YOUR-PROGRAM-NAME.
